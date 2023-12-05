@@ -9,7 +9,7 @@ import (
 func TestCreateTransaction(t *testing.T) {
 	client1, _ := NewClient("John Doe", "j@j.com")
 	account1 := NewAccount(client1)
-	client2, _ := NewClient("John Doe 1", "j2@j.com")
+	client2, _ := NewClient("John Doe 1", "j1@j.com")
 	account2 := NewAccount(client2)
 
 	account1.Credit(1000)
