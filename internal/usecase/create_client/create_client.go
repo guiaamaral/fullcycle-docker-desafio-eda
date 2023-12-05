@@ -7,12 +7,12 @@ import (
 	"github.com/guiaamaral/fullcycle-ms-wallet/internal/gateway"
 )
 
-type CreateClientInputDto struct {
+type CreateClientInputDTO struct {
 	Name  string
 	Email string
 }
 
-type CreateClientOutputDto struct {
+type CreateClientOutputDTO struct {
 	ID        string
 	Name      string
 	Email     string
@@ -30,7 +30,7 @@ func NewCreateClientUseCase(clientGateway gateway.ClientGateway) *CreateClientUs
 	}
 }
 
-func (uc *CreateClientUseCase) Execute(input CreateClientInputDto) (*CreateClientOutputDto, error) {
+func (uc *CreateClientUseCase) Execute(input CreateClientInputDTO) (*CreateClientOutputDTO, error) {
 	client, err := entity.NewClient(input.Name, input.Email)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func (uc *CreateClientUseCase) Execute(input CreateClientInputDto) (*CreateClien
 	if err != nil {
 		return nil, err
 	}
-	return &CreateClientOutputDto{
+	return &CreateClientOutputDTO{
 		ID:        client.ID,
 		Name:      client.Name,
 		Email:     client.Email,

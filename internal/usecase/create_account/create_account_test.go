@@ -45,10 +45,10 @@ func TestCreateAccountUseCase_Execute(t *testing.T) {
 	accountMock.On("Save", mock.Anything).Return(nil)
 
 	uc := NewCreateAccountUseCase(accountMock, clientMock)
-	inputDto := CreateAccountInputDto{
+	inputDTO := CreateAccountInputDTO{
 		ClientID: client.ID,
 	}
-	output, err := uc.Execute(inputDto)
+	output, err := uc.Execute(inputDTO)
 	assert.Nil(t, err)
 	assert.NotNil(t, output.ID)
 	clientMock.AssertExpectations(t)
