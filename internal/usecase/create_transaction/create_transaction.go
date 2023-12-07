@@ -24,14 +24,14 @@ type CreateTransactionUseCase struct {
 }
 
 func NewCreateTransactionUseCase(
-	accountGateway gateway.AccountGateway,
 	transactionGateway gateway.TransactionGateway,
+	accountGateway gateway.AccountGateway,
 	eventDispatcher events.EventDispatcherInterface,
 	transactionCreated events.EventInterface,
 ) *CreateTransactionUseCase {
 	return &CreateTransactionUseCase{
-		AccountGateway:     accountGateway,
 		TransactionGateway: transactionGateway,
+		AccountGateway:     accountGateway,
 		EventDispatcher:    eventDispatcher,
 		TransactionCreated: transactionCreated,
 	}
