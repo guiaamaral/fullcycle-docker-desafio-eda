@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/guiaamaral/fullcycle-ms-wallet/internal/entity"
+	"github.com/guiaamaral/fullcycle-ms-wallet/internal/event"
+	"github.com/guiaamaral/fullcycle-ms-wallet/pkg/events"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -53,7 +55,10 @@ func TestCreateTransactionUseCaseExecute(t *testing.T) {
 		Amount:        500,
 	}
 
-	uc := NewCreateTransactionUseCase(mockAccount, mockTransaction)
+	dispatcher := events.NewEventDispatcher()
+	event := event.NewTransactionCreated()
+
+	uc := NewCreateTransactionUseCase(mockAccount, mockTransaction, dispatcher, event)
 	output, err := uc.Execute(inputDto)
 	assert.Nil(t, err)
 	assert.NotNil(t, output)
