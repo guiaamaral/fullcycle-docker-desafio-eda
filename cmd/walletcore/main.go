@@ -12,6 +12,8 @@ import (
 	"github.com/guiaamaral/fullcycle-ms-wallet/internal/web"
 	"github.com/guiaamaral/fullcycle-ms-wallet/internal/web/webserver"
 	"github.com/guiaamaral/fullcycle-ms-wallet/pkg/events"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
