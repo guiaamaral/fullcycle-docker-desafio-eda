@@ -1,4 +1,4 @@
-package createaccount
+package create_account
 
 import (
 	"github.com/guiaamaral/fullcycle-ms-wallet/internal/entity"
