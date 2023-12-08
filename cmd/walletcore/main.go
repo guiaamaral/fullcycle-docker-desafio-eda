@@ -38,7 +38,7 @@ func main() {
 		return database.NewAccountDB(db)
 	})
 	uow.Register("TransactionDb", func(tx *sql.Tx) interface{} {
-		return database.NewAccountDB(db)
+		return database.NewTransactionDB(db)
 	})
 
 	createClientUseCase := create_client.NewCreateClientUseCase(clientDb)
