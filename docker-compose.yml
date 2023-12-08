@@ -2,10 +2,10 @@ version: '3'
 
 services:
   goapp:
-    build: .
+    build: ./walletcore/
     platform: linux/amd64
     volumes: 
-      - .:/app
+      - ./walletcore:/app
     ports:
       - 8080:8080
 
