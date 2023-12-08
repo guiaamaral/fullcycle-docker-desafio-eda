@@ -64,6 +64,6 @@ func main() {
 	webserver.AddHandler("/accounts", accountHandler.CreateAccount)
 	webserver.AddHandler("/transactions", transactionHandler.CreateTransaction)
 
-	fmt.Println("Server is runing")
+	fmt.Println("Server is running")
 	webserver.Start()
 }
