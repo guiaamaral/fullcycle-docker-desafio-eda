@@ -25,3 +25,13 @@ Content-Type: application/json
     "account_id_to": "20832441-d400-4a74-8413-795a65d739d3",
     "amount": 100
 }
+
+###
+
+GET http://localhost:3003/balances/198557c3-5cba-4421-a48f-aa52b9bdfc43 HTTP/1.1
+Content-Type: application/json
+
+###
+
+GET http://localhost:3003/balances/20832441-d400-4a74-8413-795a65d739d3 HTTP/1.1
+Content-Type: application/json
