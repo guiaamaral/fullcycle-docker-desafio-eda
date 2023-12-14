@@ -3,34 +3,51 @@ version: '3'
 services:
   goapp:
     build: ./walletcore/
+    container_name: walletcore
     platform: linux/amd64
     volumes: 
       - ./walletcore:/app
+    depends_on:
+      - mysql
+      - kafka
     ports:
       - 8080:8080
 
   nodeapp:
     build: ./balance-service/
+    container_name: balance-service
     platform: linux/amd64
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: balance
+      DB_USER: root
+      DB_PASSWORD: root
+      NODE_ENV: production
     volumes: 
       - ./balance-service:/app
+    depends_on:
+      - mysql
+      - kafka
     ports:
       - 3003:3003
 
   mysql:
     image: mysql:5.7
+    container_name: mysql
     platform: linux/amd64
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: wallet
       MYSQL_PASSWORD: root
     ports:
       - 3306:3306
-    # volumes:
-    #   - .docker/mysql:/var/lib/mysql
+    volumes:
+      - ./docker/init:/docker-entrypoint-initdb.d
+      - vl-db:/var/lib/mysql
 
   zookeeper:
-    image: "confluentinc/cp-zookeeper:6.1.0"
+    image: 'confluentinc/cp-zookeeper:6.1.0'
     container_name: zookeeper
     ports:
       - 2181:2181
@@ -39,15 +56,28 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:7.3.0
+    hostname: control-center
+    container_name: control-center
+    depends_on:
+      - kafka
+    ports:
+      - '9021:9021'
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'kafka:29092'
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      PORT: 9021
+
   kafka:
-    image: "confluentinc/cp-enterprise-kafka:6.1.0"
+    image: 'confluentinc/cp-enterprise-kafka:6.1.0'
     container_name: kafka
     depends_on:
       - zookeeper
     ports:
-    # Exposes 9092 for external connections to the broker
-    # Use kafka:29092 for connections internal on the docker network
-    # See https://rmoff.net/2018/08/02/kafka-listeners-explained/ for details
       - '9092:9092'
     environment:
       TZ: Sao_Paulo/Brazil
@@ -56,25 +86,31 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 100
       CONFLUENT_METRICS_ENABLE: 'false'
 
-  control-center:
-    image: confluentinc/cp-enterprise-control-center:7.3.0
-    hostname: control-center
-    container_name: control-center
+  init-kafka:
+    image: 'confluentinc/cp-enterprise-kafka:6.1.0'
+    container_name: init-kafka
     depends_on:
       - kafka
-    ports:
-      - "9021:9021"
-    environment:
-      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'kafka:29092'
-      CONTROL_CENTER_REPLICATION_FACTOR: 1
-      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
-      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
-      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
-      PORT: 9021
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:29092 --list
+
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic balances --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic transactions --replication-factor 1 --partitions 1
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka:29092 --list
+      "
+
+volumes:
+  vl-db:
