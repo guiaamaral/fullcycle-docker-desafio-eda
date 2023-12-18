@@ -1,7 +1,9 @@
 FROM node:18-alpine
+WORKDIR /app
+COPY . .
+RUN yarn install \
+    && yarn build
 
-WORKDIR /app/
+EXPOSE 3003
 
-RUN apk update && apk add bash
-
-CMD ["tail", "-f", "/dev/null"]
+CMD ["yarn", "start:prod"]
